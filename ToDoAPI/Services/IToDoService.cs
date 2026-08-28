@@ -5,7 +5,7 @@ namespace ToDoAPI.Services
 {
     public interface IToDoService
     {
-        Task<IEnumerable<ToDoItem>> GetAllAsync(bool? completed = null);
+        Task<PagedResult<ToDoItem>> GetAllAsync(bool? completed = null, int page = 1, int pageSize = 10);
         Task<ToDoItem?> GetByIdAsync(int id);
         Task<ToDoItem> CreateAsync(CreateToDoDto dto);
         Task<bool> UpdateAsync(int id, UpdateToDoDto dto);

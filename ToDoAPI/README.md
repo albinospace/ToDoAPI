@@ -40,11 +40,11 @@
 }
 ```
 
-### Получить все задачи
-`GET /api/todos`
+### Получить все задачи с пагинацией
+`GET /api/todos?page=1&pageSize=10`
 
 ### Получить только активные
-`GET /api/todos?completed=false`
+`GET /api/todos?completed=false&page=1&pageSize=10`
 
 ### Отметить как выполненную
 `PATCH /api/todos/{id}/complete`

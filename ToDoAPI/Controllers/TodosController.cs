@@ -21,9 +21,12 @@ namespace ToDoAPI.Controllers
         // GET: api/todos
         // Можно передать ?completed=true или ?completed=false
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ToDoItem>>> GetTodos([FromQuery] bool? completed = null)
+        public async Task<ActionResult<IEnumerable<ToDoItem>>> GetTodos(
+            [FromQuery] bool? completed = null, 
+            [FromQuery] int page = 1, 
+            [FromQuery] int pageSize = 10)
         {
-            var todos = await _todoService.GetAllAsync(completed);
+            var todos = await _todoService.GetAllAsync(completed, page, pageSize);
             return Ok(todos);
         }
 
@@ -41,9 +44,6 @@ namespace ToDoAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<ToDoItem>> CreateTodo(CreateToDoDto dto)
         {
-            if (string.IsNullOrWhiteSpace(dto.Title))
-                return BadRequest("Title is required");
-
             var todo = await _todoService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
         }
