@@ -15,6 +15,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddScoped<IToDoService, ToDoService>();
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IColumnService, ColumnService>();
 
 var app = builder.Build();
 
@@ -33,35 +35,48 @@ app.MapControllers();
 
 using (var scope = app.Services.CreateScope())
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.EnsureCreated();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.EnsureCreated();
 
-    if (!dbContext.ToDoItems.Any())
+    if (!db.Projects.Any())
     {
-        dbContext.ToDoItems.AddRange(
+        var project = new Project
+        {
+            Title = "Learn C#",
+            Description = "Unity to Backend Transition",
+            CreatedAt = DateTime.UtcNow.AddDays(-5)
+        };
+        db.Projects.Add(project);
+        db.SaveChanges();
+
+        var colTodo = new Column { Title = "To Do", Order = 1, ProjectId = project.Id, CreatedAt = DateTime.UtcNow };
+        var colProgress = new Column { Title = "In Progress", Order = 2, ProjectId = project.Id, CreatedAt = DateTime.UtcNow };
+        var colDone = new Column { Title = "Done", Order = 3, ProjectId = project.Id, CreatedAt = DateTime.UtcNow };
+
+        db.Columns.AddRange(colTodo, colProgress, colDone);
+        db.SaveChanges();
+
+        db.ToDoItems.AddRange(
             new ToDoItem
             {
-                Title = "Call grandma",
-                IsCompleted = false,
-                CreatedAt = DateTime.UtcNow.AddDays(-3)
+                Title = "Learn EF Core",
+                Description = "",
+                Order = 1,
+                ColumnId = colTodo.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-4)
             },
             new ToDoItem
             {
-                Title = "Write report",
-                Description = "Should be made due Friday",
+                Title = "Watch Youtube videos on theme",
+                Description = "Some video link",
                 IsCompleted = true,
-                CreatedAt = DateTime.UtcNow.AddDays(-2),
-                CompletedAt = DateTime.UtcNow.AddDays(-1)
-            },
-            new ToDoItem
-            {
-                Title = "Update social media posts",
-                Description = "Medias: X, Insta, VK",
-                IsCompleted = false,
-                CreatedAt = DateTime.UtcNow.AddDays(-1)
+                CompletedAt = DateTime.UtcNow.AddDays(-1),
+                Order = 1,
+                ColumnId = colDone.Id,
+                CreatedAt = DateTime.UtcNow.AddDays(-2)
             }
         );
-        dbContext.SaveChanges();
+        db.SaveChanges();
     }
 }
 

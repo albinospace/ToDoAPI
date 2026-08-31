@@ -1,12 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace ToDoAPI.DTOs
+namespace ToDoAPI.DTOs.Projects
 {
-    public class UpdateToDoDto
+    public class CreateProjectDto
     {
         [Required(ErrorMessage = "Title is required")]
-        [MaxLength(200, ErrorMessage = "Title cannot be longer than 200 characters")]
+        [MaxLength(200)]
         public string Title { get; set; } = string.Empty;
+
+        [MaxLength(1000)]
         public string? Description { get; set; }
     }
 }

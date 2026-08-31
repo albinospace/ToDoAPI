@@ -1,9 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using ToDoAPI.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using ToDoAPI.DTOs;
-using ToDoAPI.Models;
+using ToDoAPI.DTOs.ToDos;
 using ToDoAPI.Services;
 
 namespace ToDoAPI.Controllers
@@ -21,18 +18,20 @@ namespace ToDoAPI.Controllers
         // GET: api/todos
         // Можно передать ?completed=true или ?completed=false
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ToDoItem>>> GetTodos(
-            [FromQuery] bool? completed = null, 
+        public async Task<ActionResult<PagedResult<TodoResponseDto>>> GetTodos(
+            [FromQuery] bool? completed = null,
+            [FromQuery] int? columnId = null,
+            [FromQuery] int? projectId = null,
             [FromQuery] int page = 1, 
             [FromQuery] int pageSize = 10)
         {
-            var todos = await _todoService.GetAllAsync(completed, page, pageSize);
+            var todos = await _todoService.GetAllAsync(completed, columnId, projectId, page, pageSize);
             return Ok(todos);
         }
 
         // GET: api/todos/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<ToDoItem>> GetTodo(int id)
+        public async Task<ActionResult<TodoResponseDto>> GetTodo(int id)
         {
             var todo = await _todoService.GetByIdAsync(id);
             if (todo == null) return NotFound();
@@ -42,9 +41,12 @@ namespace ToDoAPI.Controllers
 
         // POST: api/todos
         [HttpPost]
-        public async Task<ActionResult<ToDoItem>> CreateTodo(CreateToDoDto dto)
+        public async Task<ActionResult<TodoResponseDto>> CreateTodo(CreateToDoDto dto)
         {
             var todo = await _todoService.CreateAsync(dto);
+            if (todo == null)
+                return BadRequest("Column not found");
+
             return CreatedAtAction(nameof(GetTodo), new { id = todo.Id }, todo);
         }
 
