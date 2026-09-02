@@ -1,14 +1,13 @@
 ﻿using ToDoAPI.DTOs.Projects;
-using ToDoAPI.Models;
 
 namespace ToDoAPI.Services
 {
     public interface IProjectService
     {
-        Task<IEnumerable<ProjectResponseDto>> GetAllAsync();
-        Task<ProjectDetailsDto?> GetByIdAsync(int id);
-        Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto);
-        Task<bool> UpdateAsync(int id, UpdateProjectDto dto);
-        Task<bool> DeleteAsync(int id);
+        Task<IEnumerable<ProjectResponseDto>> GetAllAsync(int userId);
+        Task<ProjectDetailsDto?> GetByIdAsync(int id, int userId);
+        Task<ProjectResponseDto> CreateAsync(CreateProjectDto dto, int userId);
+        Task<bool> UpdateAsync(int id, UpdateProjectDto dto, int userId);
+        Task<bool> DeleteAsync(int id, int userId);
     }
 }

@@ -9,12 +9,25 @@ namespace ToDoAPI.Data
         {
         }
 
+        public DbSet<User> Users => Set<User>();
         public DbSet<Project> Projects => Set<Project>();
         public DbSet<Column> Columns => Set<Column>();
         public DbSet<ToDoItem> ToDoItems => Set<ToDoItem>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            // Unique email constraint for User entity
+            modelBuilder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
+
+            // One user => Many projects connection
+            modelBuilder.Entity<Project>()
+                .HasOne(p => p.User)
+                .WithMany(u => u.Projects)
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             // One project => Many columns connection
             modelBuilder.Entity<Column>()
             .HasOne(c => c.Project)

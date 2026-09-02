@@ -10,6 +10,9 @@
         public DateTime? CompletedAt { get; set; }
         public int Order { get; set; }
 
+        public DateTime? DueDate { get; set; }
+        public Priority Priority { get; set; } = Priority.Medium;
+
         public int ColumnId { get; set; }
         public Column? Column { get; set; }
     }

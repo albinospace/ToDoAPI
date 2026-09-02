@@ -14,8 +14,13 @@ namespace ToDoAPI.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<ColumnResponseDto>> GetByProjectAsync(int projectId)
+        public async Task<IEnumerable<ColumnResponseDto>> GetByProjectAsync(int projectId, int userId)
         {
+            var projectExists = await _context.Projects
+                .AnyAsync(p => p.Id == projectId && p.UserId == userId);
+
+            if (!projectExists) return Enumerable.Empty<ColumnResponseDto>();
+
             return await _context.Columns
                 .Where(c => c.ProjectId == projectId)
                 .OrderBy(c => c.Order)
@@ -30,11 +35,12 @@ namespace ToDoAPI.Services
                 .ToListAsync();
         }
 
-        public async Task<ColumnDetailsDto?> GetByIdAsync(int id)
+        public async Task<ColumnDetailsDto?> GetByIdAsync(int id, int userId)
         {
             var column = await _context.Columns
                 .Include(c => c.ToDoItems.OrderBy(t => t.Order))
-                .FirstOrDefaultAsync(c => c.Id == id);
+                .Include(c => c.Project)
+                .FirstOrDefaultAsync(c => c.Id == id && c.Project!.UserId == userId);
 
             if (column == null) return null;
 
@@ -59,10 +65,10 @@ namespace ToDoAPI.Services
             };
         }
 
-        public async Task<ColumnResponseDto?> CreateAsync(CreateColumnDto dto)
+        public async Task<ColumnResponseDto?> CreateAsync(CreateColumnDto dto, int userId)
         {
-            var projectExists = await _context.Projects.AnyAsync(p => p.Id == dto.ProjectId);
-            if (!projectExists) return null;
+            var projectExists = await _context.Projects.FirstOrDefaultAsync(p => p.Id == dto.ProjectId && p.UserId == userId);
+            if (projectExists == null) return null;
 
             var column = new Column
             {
@@ -85,9 +91,12 @@ namespace ToDoAPI.Services
             };
         }
 
-        public async Task<bool> UpdateAsync(int id, UpdateColumnDto dto)
+        public async Task<bool> UpdateAsync(int id, UpdateColumnDto dto, int userId)
         {
-            var column = await _context.Columns.FindAsync(id);
+            var column = await _context.Columns
+                .Include(c => c.Project)
+                .FirstOrDefaultAsync(c => c.Id == id && c.Project!.UserId == userId);
+
             if (column == null) return false;
 
             column.Title = dto.Title;
@@ -97,9 +106,12 @@ namespace ToDoAPI.Services
             return true;
         }
 
-        public async Task<bool> DeleteAsync(int id)
+        public async Task<bool> DeleteAsync(int id, int userId)
         {
-            var column = await _context.Columns.FindAsync(id);
+            var column = await _context.Columns
+                .Include(c => c.Project)
+                .FirstOrDefaultAsync(c => c.Id == id && c.Project!.UserId == userId);
+
             if (column == null) return false;
 
             _context.Columns.Remove(column);

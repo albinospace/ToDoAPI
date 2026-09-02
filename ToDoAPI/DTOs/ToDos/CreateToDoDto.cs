@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using ToDoAPI.Models;
 
 namespace ToDoAPI.DTOs.ToDos
 {
@@ -13,5 +14,8 @@ namespace ToDoAPI.DTOs.ToDos
         public int ColumnId { get; set; }
 
         public int Order { get; set; } = 0;
+        public DateTime? DueDate { get; set; }
+
+        public Priority Priority { get; set; } = Priority.Medium;
     }
 }

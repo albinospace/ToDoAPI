@@ -1,4 +1,6 @@
-﻿namespace ToDoAPI.DTOs.ToDos
+﻿using ToDoAPI.Models;
+
+namespace ToDoAPI.DTOs.ToDos
 {
     public class TodoResponseDto
     {
@@ -10,5 +12,8 @@
         public DateTime? CompletedAt { get; set; }
         public int Order { get; set; }
         public int ColumnId { get; set; }
+
+        public DateTime? DueDate { get; set; }
+        public Priority Priority { get; set; }
     }
 }
